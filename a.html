@@ -1,10 +1,238 @@
-<!DOCTYPE>
+<!DOCTYPE html>
 <html>
-  <head>
-   <title>網站</title>
-  <link rel="icon" href="icon.png">
+<head>
+    <title>網站</title>
+    <link rel="icon" href="icon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 2em;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.5em;
+            margin: 20px 0;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .cat-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .cat {
+            font-size: 150px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .cat.happy {
+            animation: bounce 0.5s ease;
+        }
+
+        .cat.angry {
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .message {
+            font-size: 1.5em;
+            color: #333;
+            margin-top: 20px;
+            min-height: 40px;
+            font-weight: bold;
+        }
+
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .food-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .food-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .food-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
-  cats are cute
+    <div class="header">cats are cute 🐱</div>
+    
+    <h1>🐱 餵食貓咪遊戲 🐱</h1>
+    
+    <div class="game-container">
+        <div class="cat-container">
+            <div class="cat" id="cat">😺</div>
+            <div class="message" id="message">選擇食物餵我吧！</div>
+        </div>
+
+        <h2>選擇食物餵貓咪吧！</h2>
+        <div class="food-grid">
+            <button class="food-btn" onclick="feedCat('鮭魚', true)">🐟 鮭魚</button>
+            <button class="food-btn" onclick="feedCat('巧克力', false)">🍫 巧克力</button>
+            <button class="food-btn" onclick="feedCat('雞肉', true)">🍗 雞肉</button>
+            <button class="food-btn" onclick="feedCat('洋蔥', false)">🧅 洋蔥</button>
+            <button class="food-btn" onclick="feedCat('貓罐頭', true)">🥫 貓罐頭</button>
+            <button class="food-btn" onclick="feedCat('葡萄', false)">🍇 葡萄</button>
+            <button class="food-btn" onclick="feedCat('蝦子', true)">🦐 蝦子</button>
+            <button class="food-btn" onclick="feedCat('大蒜', false)">🧄 大蒜</button>
+            <button class="food-btn" onclick="feedCat('水煮蛋', true)">🥚 水煮蛋</button>
+            <button class="food-btn" onclick="feedCat('酪梨', false)">🥑 酪梨</button>
+            <button class="food-btn" onclick="feedCat('南瓜', true)">🎃 南瓜</button>
+            <button class="food-btn" onclick="feedCat('咖啡', false)">☕ 咖啡</button>
+            <button class="food-btn" onclick="feedCat('雞肝', true)">🍖 雞肝</button>
+            <button class="food-btn" onclick="feedCat('酒精', false)">🍺 酒精</button>
+            <button class="food-btn" onclick="feedCat('貓草', true)">🌿 貓草</button>
+            <button class="food-btn" onclick="feedCat('牛奶', false)">🥛 牛奶</button>
+            <button class="food-btn" onclick="feedCat('藍莓', true)">🫐 藍莓</button>
+            <button class="food-btn" onclick="feedCat('檸檬', false)">🍋 檸檬</button>
+            <button class="food-btn" onclick="feedCat('西瓜', true)">🍉 西瓜</button>
+            <button class="food-btn" onclick="feedCat('生麵糰', false)">🍞 生麵糰</button>
+            <button class="food-btn" onclick="feedCat('木糖醇', false)">🍬 木糖醇</button>
+            <button class="food-btn" onclick="feedCat('櫻桃', false)">🍒 櫻桃</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">開心次數</div>
+                <div class="stat-value" id="happy-count">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">生氣次數</div>
+                <div class="stat-value" id="angry-count">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let happyCount = 0;
+        let angryCount = 0;
+
+        function feedCat(food, isGood) {
+            const cat = document.getElementById('cat');
+            const message = document.getElementById('message');
+            
+            // 移除之前的動畫
+            cat.className = 'cat';
+            
+            if (isGood) {
+                // 貓咪喜歡
+                setTimeout(() => {
+                    cat.textContent = '😸';
+                    cat.className = 'cat happy';
+                }, 50);
+                message.textContent = `喵嗚～ 我最愛${food}了！好好吃！`;
+                message.style.color = '#4CAF50';
+                happyCount++;
+                document.getElementById('happy-count').textContent = happyCount;
+            } else {
+                // 貓咪不喜歡
+                setTimeout(() => {
+                    cat.textContent = '😾';
+                    cat.className = 'cat angry';
+                }, 50);
+                message.textContent = `喵嗚嗚！${food}對貓咪有毒，不能吃！`;
+                message.style.color = '#f44336';
+                angryCount++;
+                document.getElementById('angry-count').textContent = angryCount;
+            }
+
+            // 2秒後恢復正常
+            setTimeout(() => {
+                cat.textContent = '😺';
+                cat.className = 'cat';
+                message.textContent = '還想吃什麼呢？';
+                message.style.color = '#333';
+            }, 2000);
+        }
+    </script>
 </body>
 </html>
