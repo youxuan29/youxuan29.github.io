@@ -52,7 +52,7 @@
 
         .cat {
             font-size: 150px;
-            transition: all 0.3s ease;
+            transition: all 0.5s ease;
             display: inline-block;
         }
 
@@ -64,6 +64,10 @@
             animation: shake 0.5s ease;
         }
 
+        .cat.grow {
+            animation: grow 0.8s ease;
+        }
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-20px); }
@@ -73,6 +77,12 @@
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
             75% { transform: translateX(10px); }
+        }
+
+        @keyframes grow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
         .message {
@@ -122,6 +132,7 @@
 
         .stat {
             text-align: center;
+            flex: 1;
         }
 
         .stat-label {
@@ -141,6 +152,87 @@
             text-align: center;
             margin-bottom: 15px;
         }
+
+        .health-bar {
+            width: 100%;
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            border: 3px solid #333;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000 0%, #ff6b6b 50%, #4CAF50 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .game-over.show {
+            display: flex;
+        }
+
+        .game-over-content {
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+        }
+
+        .game-over-content h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .game-over-content.death h2 {
+            color: #ff0000;
+        }
+
+        .game-over-content.success h2 {
+            color: #4CAF50;
+        }
+
+        .game-over-content p {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 15px;
+            font-size: 1.3em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+        }
     </style>
 </head>
 <body>
@@ -149,6 +241,10 @@
     <h1>🐱 餵食貓咪遊戲 🐱</h1>
     
     <div class="game-container">
+        <div class="health-bar">
+            <div class="health-fill" id="health-fill">❤️ 生命值: 100</div>
+        </div>
+
         <div class="cat-container">
             <div class="cat" id="cat">😺</div>
             <div class="message" id="message">選擇食物餵我吧！</div>
@@ -189,14 +285,109 @@
                 <div class="stat-label">生氣次數</div>
                 <div class="stat-value" id="angry-count">0</div>
             </div>
+            <div class="stat">
+                <div class="stat-label">貓咪大小</div>
+                <div class="stat-value" id="size-display">100%</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">回合數</div>
+                <div class="stat-value" id="round-display">1</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-over" id="game-over">
+        <div class="game-over-content" id="game-over-content">
+            <h2 id="game-over-title">💀 貓咪死掉了... 💀</h2>
+            <p id="game-over-text">你餵了太多有毒的食物！</p>
+            <p>記得要小心選擇貓咪能吃的食物喔！</p>
+            <button class="restart-btn" onclick="restartGame()">重新開始</button>
         </div>
     </div>
 
     <script>
         let happyCount = 0;
         let angryCount = 0;
+        let health = 100;
+        let isGameOver = false;
+        let catSize = 100; // 貓咪大小百分比
+        let round = 1; // 回合數
+        const maxSize = 200; // 最大200%就長大成功
+
+        function updateHealthBar() {
+            const healthFill = document.getElementById('health-fill');
+            healthFill.style.width = health + '%';
+            healthFill.textContent = `❤️ 生命值: ${health}`;
+        }
+
+        function updateCatSize() {
+            const cat = document.getElementById('cat');
+            const sizeDisplay = document.getElementById('size-display');
+            cat.style.fontSize = (150 * (catSize / 100)) + 'px';
+            sizeDisplay.textContent = catSize + '%';
+        }
+
+        function nextRound() {
+            round++;
+            catSize = 100;
+            health = 100;
+            
+            document.getElementById('round-display').textContent = round;
+            document.getElementById('cat').textContent = '😺';
+            document.getElementById('message').textContent = '新的貓咪來了！繼續餵食吧！';
+            document.getElementById('message').style.color = '#333';
+            
+            updateHealthBar();
+            updateCatSize();
+            
+            setTimeout(() => {
+                document.getElementById('game-over').classList.remove('show');
+            }, 3000);
+        }
+
+        function showSuccess() {
+            const gameOverContent = document.getElementById('game-over-content');
+            gameOverContent.className = 'game-over-content success';
+            document.getElementById('game-over-title').textContent = '🎉 貓咪長大了！ 🎉';
+            document.getElementById('game-over-text').textContent = '謝謝你的餵食！貓咪非常健康！';
+            document.getElementById('game-over').classList.add('show');
+            
+            setTimeout(() => {
+                nextRound();
+            }, 3000);
+        }
+
+        function showDeath() {
+            const gameOverContent = document.getElementById('game-over-content');
+            gameOverContent.className = 'game-over-content death';
+            document.getElementById('game-over-title').textContent = '💀 貓咪死掉了... 💀';
+            document.getElementById('game-over-text').textContent = '你餵了太多有毒的食物！';
+            document.getElementById('game-over').classList.add('show');
+        }
+
+        function restartGame() {
+            happyCount = 0;
+            angryCount = 0;
+            health = 100;
+            catSize = 100;
+            round = 1;
+            isGameOver = false;
+            
+            document.getElementById('happy-count').textContent = '0';
+            document.getElementById('angry-count').textContent = '0';
+            document.getElementById('round-display').textContent = '1';
+            document.getElementById('cat').textContent = '😺';
+            document.getElementById('message').textContent = '選擇食物餵我吧！';
+            document.getElementById('message').style.color = '#333';
+            document.getElementById('game-over').classList.remove('show');
+            
+            updateHealthBar();
+            updateCatSize();
+        }
 
         function feedCat(food, isGood) {
+            if (isGameOver) return;
+            
             const cat = document.getElementById('cat');
             const message = document.getElementById('message');
             
@@ -204,33 +395,65 @@
             cat.className = 'cat';
             
             if (isGood) {
-                // 貓咪喜歡
+                // 貓咪喜歡 - 長大
+                catSize += 10;
+                
                 setTimeout(() => {
                     cat.textContent = '😸';
-                    cat.className = 'cat happy';
+                    cat.className = 'cat happy grow';
+                    updateCatSize();
                 }, 50);
-                message.textContent = `喵嗚～ 我最愛${food}了！好好吃！`;
+                
+                message.textContent = `喵嗚～ 我最愛${food}了！我長大了！`;
                 message.style.color = '#4CAF50';
                 happyCount++;
                 document.getElementById('happy-count').textContent = happyCount;
+                
+                // 檢查是否長到最大
+                if (catSize >= maxSize) {
+                    isGameOver = true;
+                    setTimeout(() => {
+                        cat.textContent = '😻';
+                        message.textContent = '我長大囉！謝謝你！';
+                        showSuccess();
+                    }, 2000);
+                    return;
+                }
             } else {
-                // 貓咪不喜歡
+                // 貓咪不喜歡 - 扣血
+                health -= 20;
+                if (health < 0) health = 0;
+                updateHealthBar();
+                
                 setTimeout(() => {
                     cat.textContent = '😾';
                     cat.className = 'cat angry';
                 }, 50);
-                message.textContent = `喵嗚嗚！${food}對貓咪有毒，不能吃！`;
+                message.textContent = `喵嗚嗚！${food}對貓咪有毒，不能吃！生命值 -20`;
                 message.style.color = '#f44336';
                 angryCount++;
                 document.getElementById('angry-count').textContent = angryCount;
+                
+                // 檢查是否死亡
+                if (health <= 0) {
+                    isGameOver = true;
+                    setTimeout(() => {
+                        cat.textContent = '💀';
+                        message.textContent = '貓咪死掉了...';
+                        showDeath();
+                    }, 2000);
+                    return;
+                }
             }
 
             // 2秒後恢復正常
             setTimeout(() => {
-                cat.textContent = '😺';
-                cat.className = 'cat';
-                message.textContent = '還想吃什麼呢？';
-                message.style.color = '#333';
+                if (!isGameOver) {
+                    cat.textContent = '😺';
+                    cat.className = 'cat';
+                    message.textContent = '還想吃什麼呢？';
+                    message.style.color = '#333';
+                }
             }, 2000);
         }
     </script>
